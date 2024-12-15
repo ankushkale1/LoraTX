@@ -283,7 +283,7 @@ void handleRoot() {
         text-align: center;
         margin: 20px 0;
       }
-      #data {
+      #messages {
         background-color: #1e1e1e; /* Slightly lighter than background */
         color: #00ff00; /* Green text for messages */
         border: 1px solid #333; /* Subtle border */
@@ -300,15 +300,21 @@ void handleRoot() {
     <script>
       var socket = new WebSocket("ws://" + location.hostname + ":81/");
       socket.onmessage = function(event) {
-        const dataBox = document.getElementById("data");
-        dataBox.innerText += event.data + "\n"; // Append received data
-        dataBox.scrollTop = dataBox.scrollHeight; // Auto-scroll to the bottom
+        const messageDiv = document.getElementById("messages");
+        const newMessage = document.createElement("p");
+        newMessage.textContent = event.data;
+        messageDiv.appendChild(newMessage);
+        messageDiv.scrollTop = messageDiv.scrollHeight;  // Scroll to the bottom
+      };
+
+      socket.onerror = function(error) {
+        console.log("WebSocket Error: " + error);
       };
     </script>
   </head>
   <body>
     <h1>LoRa Transmitter Dashboard</h1>
-    <div id="data">Waiting for data...</div>
+    <div id="messages"> Waiting for data... </div>
   </body>
   </html>
   )rawliteral";
