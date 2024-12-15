@@ -150,6 +150,13 @@ void setup() {
   pinMode(onboardLED, OUTPUT);
   digitalWrite(onboardLED, HIGH); // Turn off LED initially
 
+  LoRa.setSpreadingFactor(12);           // Maximum range
+  LoRa.setSignalBandwidth(125E3);        // Default bandwidth
+  LoRa.setCodingRate4(5);                // Improved robustness
+  LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN); // Max power with PA_BOOST
+
+  Serial.println("LoRa Initialized");
+
   // Initialize Wi-Fi hotspot
   WiFi.softAP(ssid, password);
   IPAddress myIP = WiFi.softAPIP();
@@ -172,12 +179,6 @@ void setup() {
     while (1);
   }
 
-  LoRa.setSpreadingFactor(12);           // Maximum range
-  LoRa.setSignalBandwidth(125E3);        // Default bandwidth
-  LoRa.setCodingRate4(5);                // Improved robustness
-  LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN); // Max power with PA_BOOST
-
-  Serial.println("LoRa Initialized");
   lastAckTime = millis(); // Initialize last acknowledgment time
 }
 
@@ -269,17 +270,45 @@ void handleRoot() {
   <!DOCTYPE html>
   <html>
   <head>
-    <title>LoRa Transmitter</title>
+    <title>LoRa TX</title>
+    <style>
+      body {
+        background-color: #121212; /* Dark background */
+        color: #ffffff; /* Light text */
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        text-align: center;
+        margin: 20px 0;
+      }
+      #data {
+        background-color: #1e1e1e; /* Slightly lighter than background */
+        color: #00ff00; /* Green text for messages */
+        border: 1px solid #333; /* Subtle border */
+        padding: 10px;
+        margin: 20px auto;
+        width: 90%;
+        max-width: 800px;
+        height: 300px; /* Fixed height */
+        overflow-y: auto; /* Enable scrolling */
+        white-space: pre-wrap; /* Wrap text properly */
+        border-radius: 5px; /* Rounded corners */
+      }
+    </style>
     <script>
       var socket = new WebSocket("ws://" + location.hostname + ":81/");
       socket.onmessage = function(event) {
-        document.getElementById("data").innerText = event.data;
+        const dataBox = document.getElementById("data");
+        dataBox.innerText += event.data + "\n"; // Append received data
+        dataBox.scrollTop = dataBox.scrollHeight; // Auto-scroll to the bottom
       };
     </script>
   </head>
   <body>
     <h1>LoRa Transmitter Dashboard</h1>
-    <pre id="data">Waiting for data...</pre>
+    <div id="data">Waiting for data...</div>
   </body>
   </html>
   )rawliteral";
